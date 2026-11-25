@@ -1,0 +1,245 @@
+<resources>
+    <string name="app_name" translatable="false">offline chat</string>
+
+    <!-- Navigation -->
+    <string name="nav_radar">Radar</string>
+    <string name="nav_chats">Chats</string>
+    <string name="nav_transfers">Files</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Onboarding & Identity -->
+    <string name="onboarding_title">Connect Without Internet</string>
+    <string name="onboarding_subtitle">Chat, share any file, and make voice or video calls with nearby devices over Wi-Fi Direct or Local Hotspot.</string>
+    <string name="your_identity">Your Local Identity</string>
+    <string name="profile_name_label">Display Name</string>
+    <string name="profile_name_hint">Enter your name…</string>
+    <string name="choose_language">App Language</string>
+    <string name="get_started">Start Offline Mesh</string>
+    <string name="device_id_label">Device ID: %1$s</string>
+
+    <!-- Radar & Connection Hub -->
+    <string name="radar_title">Nearby Mesh</string>
+    <string name="radar_scanning">Scanning nearby devices…</string>
+    <string name="radar_idle">Ready to discover nearby peers</string>
+    <string name="scan_nearby">Scan Peers</string>
+    <string name="stop_scan">Stop Scan</string>
+    <string name="mode_wifi_direct">Wi-Fi Direct</string>
+    <string name="mode_hotspot">Hotspot + QR</string>
+    <string name="mode_lan_qr">Join via IP / QR</string>
+    <string name="host_hotspot">Start Local Hotspot</string>
+    <string name="stop_hotspot">Stop Hotspot</string>
+    <string name="scan_qr_join">Scan QR Code</string>
+    <string name="connect_manual_ip">Connect by IP</string>
+    <string name="nearby_devices_header">Discovered Devices (%1$d)</string>
+    <string name="no_devices_found">No nearby devices detected yet</string>
+    <string name="no_devices_tip">Ensure Wi-Fi is enabled on both devices, or start a Local Hotspot and scan the QR code.</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connected">Connected</string>
+    <string name="connecting">Connecting…</string>
+    <string name="available">Available</string>
+    <string name="paired_pin_title">Verification Code</string>
+    <string name="paired_pin_subtitle">Session PIN: %1$s</string>
+    <string name="hotspot_active_title">Local Hotspot Active</string>
+    <string name="hotspot_qr_instruction">Ask the nearby device to connect to this Wi-Fi or scan this QR code inside offline chat.</string>
+    <string name="ssid_label">Network Name (SSID)</string>
+    <string name="password_label">Password</string>
+    <string name="ip_address_label">Host IP</string>
+    <string name="port_label">Port</string>
+    <string name="ip_input_hint">e.g. 192.168.49.1</string>
+    <string name="pin_input_hint">Optional Room PIN</string>
+    <string name="join_now">Join Now</string>
+    <string name="wifi_direct_status_ready">Wi-Fi Direct Ready</string>
+    <string name="wifi_direct_status_off">Wi-Fi is turned off</string>
+    <string name="create_group_chat">Group Room</string>
+
+    <!-- Chats & Room -->
+    <string name="chats_title">Conversations</string>
+    <string name="search_chats_hint">Search messages or peers…</string>
+    <string name="no_chats_title">No Conversations Yet</string>
+    <string name="no_chats_tip">Connect with a nearby device from the Radar tab to start chatting offline.</string>
+    <string name="online_now">Direct Link Active</string>
+    <string name="offline_status">Saved Offline</string>
+    <string name="typing_indicator">typing…</string>
+    <string name="message_hint">Type a message…</string>
+    <string name="send_message">Send</string>
+    <string name="replying_to">Replying to %1$s</string>
+    <string name="cancel_reply">Cancel reply</string>
+    <string name="hold_to_record">Record Voice Note</string>
+    <string name="recording_audio">Recording… %1$s</string>
+    <string name="slide_cancel">Tap stop to send</string>
+    <string name="voice_note_label">Voice Note (%1$s)</string>
+    <string name="attach_photo_video">Photos &amp; Videos</string>
+    <string name="attach_any_file">Documents &amp; Any File</string>
+    <string name="voice_call">Voice Call</string>
+    <string name="video_call">Video Call</string>
+    <string name="group_chat_badge">Local Group</string>
+    <string name="participants_count">%1$d peers</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_sent">Sent</string>
+    <string name="status_delivered">Delivered</string>
+    <string name="status_read">Read</string>
+    <string name="status_failed">Failed</string>
+    <string name="copy_message">Copy</string>
+    <string name="delete_message">Delete</string>
+    <string name="react_message">React</string>
+    <string name="message_copied">Copied to clipboard</string>
+    <string name="room_security_pin">Encrypted Local Session</string>
+    <string name="open_file">Open File</string>
+    <string name="save_to_downloads">Save Copy</string>
+    <string name="saved_to_downloads">Saved to Downloads/OfflineChat</string>
+
+    <!-- File Transfers -->
+    <string name="transfers_title">File Exchange</string>
+    <string name="no_transfers_title">No File Transfers</string>
+    <string name="no_transfers_tip">Share photos, videos, PDFs, archives, or any file directly over local Wi-Fi.</string>
+    <string name="incoming_file">Receiving</string>
+    <string name="outgoing_file">Sending</string>
+    <string name="transfer_completed">Completed</string>
+    <string name="transfer_failed">Failed</string>
+    <string name="transfer_cancelled">Cancelled</string>
+    <string name="transfer_in_progress">%1$d%% • %2$s</string>
+    <string name="checksum_verified">SHA-256 Verified</string>
+    <string name="cancel_transfer">Cancel</string>
+    <string name="retry_transfer">Retry</string>
+
+    <!-- Calls -->
+    <string name="incoming_call_title">Incoming Call</string>
+    <string name="outgoing_call_title">Calling Nearby Peer…</string>
+    <string name="call_ringing">Ringing…</string>
+    <string name="call_connecting">Establishing local stream…</string>
+    <string name="call_connected">Connected • %1$s</string>
+    <string name="call_ended">Call Ended</string>
+    <string name="call_declined">Call Declined</string>
+    <string name="call_audio_type">Offline Voice Call</string>
+    <string name="call_video_type">Offline Video Call</string>
+    <string name="answer_call">Answer</string>
+    <string name="decline_call">Decline</string>
+    <string name="end_call">End Call</string>
+    <string name="mute_mic">Mute</string>
+    <string name="unmute_mic">Unmute</string>
+    <string name="speaker_on">Speaker</string>
+    <string name="speaker_off">Earpiece</string>
+    <string name="switch_camera">Flip Camera</string>
+    <string name="camera_off">Camera Off</string>
+    <string name="camera_on">Camera On</string>
+    <string name="return_to_call">Tap to return to active call</string>
+
+    <!-- Permissions -->
+    <string name="permissions_title">Permissions Readiness</string>
+    <string name="permissions_subtitle">Granted permissions adapt automatically to your Android version for seamless discovery, calls, and notifications.</string>
+    <string name="perm_nearby_wifi_title">Nearby Wi-Fi Devices</string>
+    <string name="perm_nearby_wifi_desc">Required on Android 13+ to discover Wi-Fi Direct and Local Hotspot peers without GPS.</string>
+    <string name="perm_location_title">Location (Wi-Fi Discovery)</string>
+    <string name="perm_location_desc">Required by Android 7–12 to scan nearby Wi-Fi Direct peers.</string>
+    <string name="perm_camera_title">Camera</string>
+    <string name="perm_camera_desc">Used for offline video calls and scanning Hotspot QR codes.</string>
+    <string name="perm_mic_title">Microphone</string>
+    <string name="perm_mic_desc">Used for voice calls, video calls, and recording voice notes.</string>
+    <string name="perm_notifications_title">Notifications</string>
+    <string name="perm_notifications_desc">Alerts you for incoming messages, calls, and file transfers outside the app.</string>
+    <string name="perm_granted">Granted</string>
+    <string name="perm_missing">Required</string>
+    <string name="grant_permission">Grant</string>
+    <string name="grant_all_permissions">Grant All Needed</string>
+    <string name="open_app_settings">App Settings</string>
+    <string name="location_services_off">System Location is off (required by Android ≤12 for Wi-Fi P2P)</string>
+    <string name="enable_location_services">Turn On Location</string>
+    <string name="wifi_off_warning">Wi-Fi is currently disabled</string>
+    <string name="enable_wifi">Enable Wi-Fi</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_messages">Incoming Messages</string>
+    <string name="notif_channel_messages_desc">Notifications for new text messages and voice notes with quick reply</string>
+    <string name="notif_channel_calls">Voice &amp; Video Calls</string>
+    <string name="notif_channel_calls_desc">High-priority alerts for incoming offline audio and video calls</string>
+    <string name="notif_channel_transfers">File Transfers</string>
+    <string name="notif_channel_transfers_desc">Live progress and completion notifications for exchanged files</string>
+    <string name="notif_channel_service">Mesh Background Service</string>
+    <string name="notif_channel_service_desc">Keeps Wi-Fi Direct and local chat connections alive in background</string>
+    <string name="notif_reply_hint">Reply offline…</string>
+    <string name="notif_action_reply">Reply</string>
+    <string name="notif_action_mark_read">Mark Read</string>
+    <string name="notif_action_answer">Answer</string>
+    <string name="notif_action_decline">Decline</string>
+    <string name="notif_action_disconnect">Disconnect</string>
+    <string name="notif_service_running">Offline Mesh Active</string>
+    <string name="notif_service_peers_connected">%1$d nearby peer(s) linked</string>
+    <string name="inapp_new_message">New message from %1$s</string>
+    <string name="inapp_tap_to_open">Tap to open</string>
+
+    <!-- Settings & Misc -->
+    <string name="settings_title">Settings</string>
+    <string name="section_profile">Identity &amp; Device</string>
+    <string name="section_language">Language (10 Supported)</string>
+    <string name="section_appearance">Appearance</string>
+    <string name="section_security">Privacy &amp; Encryption</string>
+    <string name="section_permissions">System Permissions</string>
+    <string name="theme_dark">Signal Dark</string>
+    <string name="theme_light">Daylight Crisp</string>
+    <string name="theme_system">System Default</string>
+    <string name="encryption_enabled">Local Session Encryption</string>
+    <string name="encryption_desc">Encrypts text messages and signaling packets over the local wireless link.</string>
+    <string name="room_pin_setting">Optional Room Join PIN</string>
+    <string name="app_lock_pin">Require PIN when joining</string>
+    <string name="save_changes">Save</string>
+    <string name="qr_scanner_title">Scan Hotspot QR</string>
+    <string name="qr_scanner_hint">Point camera at the QR code shown on the host device</string>
+    <string name="permission_required_banner">Permission required to continue</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="close">Close</string>
+    <string name="peer_unreachable_error">Peer is not reachable right now. Ensure both devices are linked.</string>
+    <string name="voice_record_failed">Could not start microphone recording.</string>
+    <string name="tap_to_retry">Tap to retry</string>
+
+    <!-- Hybrid Online + Offline & Resumable Transfers -->
+    <string name="nav_connections">Connect</string>
+    <string name="connections_hub_title">Connection Hub</string>
+    <string name="auth_welcome_title">Online &amp; Offline Chat</string>
+    <string name="auth_welcome_subtitle">Sign in with Google for internet chat and calls, or switch seamlessly to local Wi-Fi Direct without internet.</string>
+    <string name="auth_online_feature_desc">Chat anywhere over the internet with Google Sign-In, share codes, WebRTC voice &amp; video calls, and resumable file sharing.</string>
+    <string name="auth_offline_feature_desc">Connect directly without internet via Wi-Fi Direct, Local Hotspot QR, or LAN IP with SHA-256 resumable transfers.</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_in_short">Sign In</string>
+    <string name="use_offline_only">Use Offline Mode Only</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="section_cloud_account">Online Account &amp; Mode</string>
+    <string name="default_mode_label">Default Messaging Mode</string>
+    <string name="mode_badge_online">Online</string>
+    <string name="mode_badge_offline">Offline</string>
+    <string name="mode_wifi_direct_short">Wi-Fi P2P</string>
+    <string name="mode_hotspot_short">Hotspot</string>
+    <string name="mode_lan_qr_short">IP / QR</string>
+    <string name="online_connection_title">Online Friend Connection</string>
+    <string name="online_ready_banner">Internet Online • Cloud Ready</string>
+    <string name="online_reconnecting_banner">Waiting for Internet…</string>
+    <string name="offline_mode_banner">Offline Local Mode Active</string>
+    <string name="online_cloud_active">Connected via Internet</string>
+    <string name="cloud_sign_in_required">Sign in with Google to chat, call, and share files over the internet.</string>
+    <string name="my_share_code_title">Your Online Share Code</string>
+    <string name="my_share_code_desc">Share this code or QR with a friend so they can add you online.</string>
+    <string name="your_share_code_inline">Share Code: %1$s</string>
+    <string name="add_online_friend">Add Friend</string>
+    <string name="add_friend_code_desc">Enter your friend\'s Share Code or scan their QR code to start an encrypted cloud chat.</string>
+    <string name="friend_code_label">Friend Share Code</string>
+    <string name="friend_code_not_found">No user found with that Share Code.</string>
+    <string name="cannot_add_self_code">You cannot add your own Share Code.</string>
+    <string name="scan_qr_short">Scan QR</string>
+    <string name="my_qr_short">My QR</string>
+    <string name="filter_all">All</string>
+    <string name="no_chats_hybrid_tip">Add a friend online by Share Code/QR, or link a nearby device from the Connect tab without internet.</string>
+    <string name="online_group_badge">Online Group</string>
+    <string name="select_online_friends_hint">Add at least one online friend first to create an online group.</string>
+    <string name="cloud_file_limit_error">Online cloud transfers support files up to 25 MB. Use Wi-Fi Direct for larger files.</string>
+    <string name="transfer_paused">Paused</string>
+    <string name="pause_transfer">Pause</string>
+    <string name="resume_transfer">Resume</string>
+    <string name="resume_all">Resume All</string>
+    <string name="resumable_transfers_banner">%1$d transfer(s) ready to resume</string>
+    <string name="resumable_transfers_desc">Transfers continue automatically from the last saved chunk or byte offset.</string>
+    <string name="transfer_paused_progress">Paused at %1$d%%</string>
+    <string name="transfer_paused_chunks">Paused at %1$d%% (%2$d/%3$d chunks)</string>
+    <string name="call_online_audio_type">Online Voice Call</string>
+    <string name="call_online_video_type">Online Video Call</string>
+</resources>

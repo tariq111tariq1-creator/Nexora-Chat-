@@ -1,0 +1,6 @@
+{
+  "name": "Nexora Chat",
+  "description": "Cloud-powered real-time chat app with Google Sign-In, Share Codes & QR, voice notes, WebRTC audio/video calls, and resumable file sharing across 10 languages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

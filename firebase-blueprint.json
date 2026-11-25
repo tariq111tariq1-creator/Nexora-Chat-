@@ -1,0 +1,139 @@
+{
+  "databaseId": "ai-studio-android-4507edf4-d248-4abd-b345-a77bb6932cd3",
+  "collections": {
+    "users": {
+      "path": "users/{userId}",
+      "description": "Private authenticated user profile and personal share code.",
+      "fields": {
+        "ownerUid": { "type": "string", "immutable": true },
+        "shareCode": { "type": "string", "immutable": true },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "avatarColorIndex": { "type": "number" },
+        "createdAt": { "type": "timestamp", "immutable": true },
+        "updatedAt": { "type": "timestamp" }
+      }
+    },
+    "directory": {
+      "path": "directory/{shareCode}",
+      "description": "Exact-code friend discovery directory with zero PII.",
+      "fields": {
+        "ownerUid": { "type": "string", "immutable": true },
+        "shareCode": { "type": "string", "immutable": true },
+        "displayName": { "type": "string" },
+        "avatarColorIndex": { "type": "number" },
+        "onlineState": { "type": "string" },
+        "createdAt": { "type": "timestamp", "immutable": true },
+        "updatedAt": { "type": "timestamp" }
+      }
+    },
+    "conversations": {
+      "path": "conversations/{convId}",
+      "description": "Online 1-on-1 and group conversations.",
+      "fields": {
+        "memberUids": { "type": "array" },
+        "participantNames": { "type": "map" },
+        "participantColors": { "type": "map" },
+        "title": { "type": "string" },
+        "groupChat": { "type": "boolean" },
+        "createdBy": { "type": "string", "immutable": true },
+        "lastMessagePreview": { "type": "string" },
+        "lastSenderUid": { "type": "string" },
+        "lastMessageAtMs": { "type": "number" },
+        "typingUids": { "type": "array" },
+        "readAtMsMap": { "type": "map" },
+        "createdAt": { "type": "timestamp", "immutable": true },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "subcollections": {
+        "messages": {
+          "path": "conversations/{convId}/messages/{messageId}",
+          "description": "Synced messages with delivery/read status and reactions.",
+          "fields": {
+            "memberUids": { "type": "array" },
+            "senderUid": { "type": "string", "immutable": true },
+            "senderName": { "type": "string" },
+            "msgType": { "type": "string", "immutable": true },
+            "textBody": { "type": "string" },
+            "replyToId": { "type": "string" },
+            "replyToPreview": { "type": "string" },
+            "reactionEmoji": { "type": "string" },
+            "transferId": { "type": "string" },
+            "fileName": { "type": "string" },
+            "mimeType": { "type": "string" },
+            "fileSizeBytes": { "type": "number" },
+            "durationMs": { "type": "number" },
+            "deliveredUids": { "type": "array" },
+            "readUids": { "type": "array" },
+            "clientTimestampMs": { "type": "number", "immutable": true },
+            "createdAt": { "type": "timestamp", "immutable": true },
+            "updatedAt": { "type": "timestamp" }
+          }
+        },
+        "transfers": {
+          "path": "conversations/{convId}/transfers/{transferId}",
+          "description": "Resumable chunked file and voice-note transfer metadata.",
+          "fields": {
+            "memberUids": { "type": "array" },
+            "senderUid": { "type": "string", "immutable": true },
+            "senderName": { "type": "string" },
+            "fileName": { "type": "string" },
+            "mimeType": { "type": "string" },
+            "totalBytes": { "type": "number" },
+            "chunkSizeBytes": { "type": "number" },
+            "totalChunks": { "type": "number" },
+            "uploadedChunkCount": { "type": "number" },
+            "sha256": { "type": "string" },
+            "transferState": { "type": "string" },
+            "createdAt": { "type": "timestamp", "immutable": true },
+            "updatedAt": { "type": "timestamp" }
+          },
+          "subcollections": {
+            "chunks": {
+              "path": "conversations/{convId}/transfers/{transferId}/chunks/{chunkIndex}",
+              "description": "Immutable Base64 file chunk documents for resumable download/upload.",
+              "fields": {
+                "chunkIndex": { "type": "number", "immutable": true },
+                "dataBase64": { "type": "string", "immutable": true },
+                "byteCount": { "type": "number", "immutable": true },
+                "senderUid": { "type": "string", "immutable": true },
+                "createdAt": { "type": "timestamp", "immutable": true }
+              }
+            }
+          }
+        }
+      }
+    },
+    "calls": {
+      "path": "calls/{callId}",
+      "description": "WebRTC signaling sessions for online voice and video calls.",
+      "fields": {
+        "conversationId": { "type": "string", "immutable": true },
+        "memberUids": { "type": "array" },
+        "callerUid": { "type": "string", "immutable": true },
+        "callerName": { "type": "string" },
+        "calleeUid": { "type": "string", "immutable": true },
+        "videoCall": { "type": "boolean", "immutable": true },
+        "callState": { "type": "string" },
+        "sdpOffer": { "type": "string" },
+        "sdpAnswer": { "type": "string" },
+        "startedAtMs": { "type": "number", "immutable": true },
+        "createdAt": { "type": "timestamp", "immutable": true },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "subcollections": {
+        "candidates": {
+          "path": "calls/{callId}/candidates/{candidateId}",
+          "description": "WebRTC ICE candidates exchanged between caller and callee.",
+          "fields": {
+            "senderUid": { "type": "string", "immutable": true },
+            "sdpMid": { "type": "string", "immutable": true },
+            "sdpMLineIndex": { "type": "number", "immutable": true },
+            "candidate": { "type": "string", "immutable": true },
+            "createdAt": { "type": "timestamp", "immutable": true }
+          }
+        }
+      }
+    }
+  }
+}

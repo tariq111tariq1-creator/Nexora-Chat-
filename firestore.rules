@@ -1,0 +1,418 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function validTimestamp(ts) {
+      return ts is timestamp && ts <= request.time;
+    }
+
+    function nonEmptyStr(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function optStr(val, maxLen) {
+      return val is string && val.size() <= maxLen;
+    }
+
+    function validMembers(members) {
+      return members is list && members.size() >= 1 && members.size() <= 50;
+    }
+
+    function isConvMember(convId) {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/conversations/$(convId)) &&
+        request.auth.uid in get(/databases/$(database)/documents/conversations/$(convId)).data.memberUids;
+    }
+
+    function isCallMember(callId) {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/calls/$(callId)) &&
+        request.auth.uid in get(/databases/$(database)/documents/calls/$(callId)).data.memberUids;
+    }
+
+    // 1. Private user profile (strictly owner-only, PII stays here)
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly([
+          'ownerUid', 'shareCode', 'displayName', 'email',
+          'avatarColorIndex', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'ownerUid', 'shareCode', 'displayName', 'email',
+          'avatarColorIndex', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.ownerUid == userId
+        && nonEmptyStr(request.resource.data.shareCode, 4, 32)
+        && nonEmptyStr(request.resource.data.displayName, 1, 60)
+        && optStr(request.resource.data.email, 120)
+        && request.resource.data.avatarColorIndex is int
+        && request.resource.data.avatarColorIndex >= 0
+        && request.resource.data.avatarColorIndex <= 10
+        && validTimestamp(request.resource.data.createdAt)
+        && validTimestamp(request.resource.data.updatedAt);
+
+      allow update: if isOwner(userId)
+        && request.resource.data.keys().hasOnly([
+          'ownerUid', 'shareCode', 'displayName', 'email',
+          'avatarColorIndex', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.shareCode == resource.data.shareCode
+        && request.resource.data.createdAt == resource.data.createdAt
+        && nonEmptyStr(request.resource.data.displayName, 1, 60)
+        && optStr(request.resource.data.email, 120)
+        && request.resource.data.avatarColorIndex is int
+        && request.resource.data.avatarColorIndex >= 0
+        && request.resource.data.avatarColorIndex <= 10
+        && validTimestamp(request.resource.data.updatedAt);
+
+      allow delete: if isOwner(userId);
+    }
+
+    // 2. Exact-code public discovery directory (zero PII, no blanket list)
+    match /directory/{shareCode} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          'ownerUid', 'shareCode', 'displayName', 'avatarColorIndex',
+          'onlineState', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'ownerUid', 'shareCode', 'displayName', 'avatarColorIndex',
+          'onlineState', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.shareCode == shareCode
+        && nonEmptyStr(shareCode, 4, 32)
+        && nonEmptyStr(request.resource.data.displayName, 1, 60)
+        && request.resource.data.avatarColorIndex is int
+        && request.resource.data.avatarColorIndex >= 0
+        && request.resource.data.avatarColorIndex <= 10
+        && request.resource.data.onlineState in ['ONLINE', 'OFFLINE']
+        && validTimestamp(request.resource.data.createdAt)
+        && validTimestamp(request.resource.data.updatedAt);
+
+      allow update: if isSignedIn()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'ownerUid', 'shareCode', 'displayName', 'avatarColorIndex',
+          'onlineState', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.shareCode == resource.data.shareCode
+        && request.resource.data.createdAt == resource.data.createdAt
+        && nonEmptyStr(request.resource.data.displayName, 1, 60)
+        && request.resource.data.avatarColorIndex is int
+        && request.resource.data.avatarColorIndex >= 0
+        && request.resource.data.avatarColorIndex <= 10
+        && request.resource.data.onlineState in ['ONLINE', 'OFFLINE']
+        && validTimestamp(request.resource.data.updatedAt);
+
+      allow delete: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // 3. Online Conversations
+    match /conversations/{convId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.memberUids;
+
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          'memberUids', 'participantNames', 'participantColors', 'title',
+          'groupChat', 'createdBy', 'lastMessagePreview', 'lastSenderUid',
+          'lastMessageAtMs', 'typingUids', 'readAtMsMap', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'memberUids', 'participantNames', 'participantColors', 'title',
+          'groupChat', 'createdBy', 'lastMessagePreview', 'lastSenderUid',
+          'lastMessageAtMs', 'typingUids', 'readAtMsMap', 'createdAt', 'updatedAt'
+        ])
+        && validMembers(request.resource.data.memberUids)
+        && request.auth.uid in request.resource.data.memberUids
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.participantNames is map
+        && request.resource.data.participantNames.size() <= 50
+        && request.resource.data.participantColors is map
+        && request.resource.data.participantColors.size() <= 50
+        && optStr(request.resource.data.title, 80)
+        && request.resource.data.groupChat is bool
+        && optStr(request.resource.data.lastMessagePreview, 300)
+        && optStr(request.resource.data.lastSenderUid, 128)
+        && request.resource.data.lastMessageAtMs is int
+        && request.resource.data.lastMessageAtMs >= 0
+        && request.resource.data.typingUids is list
+        && request.resource.data.typingUids.size() <= 50
+        && request.resource.data.readAtMsMap is map
+        && request.resource.data.readAtMsMap.size() <= 50
+        && validTimestamp(request.resource.data.createdAt)
+        && validTimestamp(request.resource.data.updatedAt);
+
+      allow update: if isSignedIn()
+        && request.auth.uid in resource.data.memberUids
+        && request.resource.data.keys().hasOnly([
+          'memberUids', 'participantNames', 'participantColors', 'title',
+          'groupChat', 'createdBy', 'lastMessagePreview', 'lastSenderUid',
+          'lastMessageAtMs', 'typingUids', 'readAtMsMap', 'createdAt', 'updatedAt'
+        ])
+        && validMembers(request.resource.data.memberUids)
+        && request.auth.uid in request.resource.data.memberUids
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.groupChat == resource.data.groupChat
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.participantNames is map
+        && request.resource.data.participantNames.size() <= 50
+        && request.resource.data.participantColors is map
+        && request.resource.data.participantColors.size() <= 50
+        && optStr(request.resource.data.title, 80)
+        && optStr(request.resource.data.lastMessagePreview, 300)
+        && optStr(request.resource.data.lastSenderUid, 128)
+        && request.resource.data.lastMessageAtMs is int
+        && request.resource.data.lastMessageAtMs >= 0
+        && request.resource.data.typingUids is list
+        && request.resource.data.typingUids.size() <= 50
+        && request.resource.data.readAtMsMap is map
+        && request.resource.data.readAtMsMap.size() <= 50
+        && validTimestamp(request.resource.data.updatedAt);
+
+      allow delete: if isSignedIn() && resource.data.createdBy == request.auth.uid;
+
+      // 3a. Messages subcollection
+      match /messages/{messageId} {
+        allow read: if isConvMember(convId);
+
+        allow create: if isConvMember(convId)
+          && request.resource.data.keys().hasOnly([
+            'memberUids', 'senderUid', 'senderName', 'msgType', 'textBody',
+            'replyToId', 'replyToPreview', 'reactionEmoji', 'transferId',
+            'fileName', 'mimeType', 'fileSizeBytes', 'durationMs',
+            'deliveredUids', 'readUids', 'clientTimestampMs', 'createdAt', 'updatedAt'
+          ])
+          && request.resource.data.keys().hasAll([
+            'memberUids', 'senderUid', 'senderName', 'msgType', 'textBody',
+            'replyToId', 'replyToPreview', 'reactionEmoji', 'transferId',
+            'fileName', 'mimeType', 'fileSizeBytes', 'durationMs',
+            'deliveredUids', 'readUids', 'clientTimestampMs', 'createdAt', 'updatedAt'
+          ])
+          && validMembers(request.resource.data.memberUids)
+          && request.auth.uid in request.resource.data.memberUids
+          && request.resource.data.senderUid == request.auth.uid
+          && nonEmptyStr(request.resource.data.senderName, 1, 60)
+          && request.resource.data.msgType in ['TEXT', 'VOICE_NOTE', 'IMAGE', 'VIDEO', 'FILE', 'CALL_EVENT', 'SYSTEM']
+          && optStr(request.resource.data.textBody, 4000)
+          && optStr(request.resource.data.replyToId, 128)
+          && optStr(request.resource.data.replyToPreview, 200)
+          && optStr(request.resource.data.reactionEmoji, 16)
+          && optStr(request.resource.data.transferId, 128)
+          && optStr(request.resource.data.fileName, 256)
+          && optStr(request.resource.data.mimeType, 128)
+          && request.resource.data.fileSizeBytes is int
+          && request.resource.data.fileSizeBytes >= 0
+          && request.resource.data.fileSizeBytes <= 52428800
+          && request.resource.data.durationMs is int
+          && request.resource.data.durationMs >= 0
+          && request.resource.data.durationMs <= 3600000
+          && request.resource.data.deliveredUids is list
+          && request.resource.data.deliveredUids.size() <= 50
+          && request.resource.data.readUids is list
+          && request.resource.data.readUids.size() <= 50
+          && request.resource.data.clientTimestampMs is int
+          && request.resource.data.clientTimestampMs >= 0
+          && validTimestamp(request.resource.data.createdAt)
+          && validTimestamp(request.resource.data.updatedAt);
+
+        allow update: if isConvMember(convId)
+          && request.resource.data.keys().hasOnly([
+            'memberUids', 'senderUid', 'senderName', 'msgType', 'textBody',
+            'replyToId', 'replyToPreview', 'reactionEmoji', 'transferId',
+            'fileName', 'mimeType', 'fileSizeBytes', 'durationMs',
+            'deliveredUids', 'readUids', 'clientTimestampMs', 'createdAt', 'updatedAt'
+          ])
+          && request.resource.data.memberUids == resource.data.memberUids
+          && request.resource.data.senderUid == resource.data.senderUid
+          && request.resource.data.senderName == resource.data.senderName
+          && request.resource.data.msgType == resource.data.msgType
+          && request.resource.data.textBody == resource.data.textBody
+          && request.resource.data.clientTimestampMs == resource.data.clientTimestampMs
+          && request.resource.data.createdAt == resource.data.createdAt
+          && optStr(request.resource.data.reactionEmoji, 16)
+          && request.resource.data.deliveredUids is list
+          && request.resource.data.deliveredUids.size() <= 50
+          && request.resource.data.readUids is list
+          && request.resource.data.readUids.size() <= 50
+          && validTimestamp(request.resource.data.updatedAt);
+
+        allow delete: if isConvMember(convId) && resource.data.senderUid == request.auth.uid;
+      }
+
+      // 3b. Resumable Transfers subcollection
+      match /transfers/{transferId} {
+        allow read: if isConvMember(convId);
+
+        allow create: if isConvMember(convId)
+          && request.resource.data.keys().hasOnly([
+            'memberUids', 'senderUid', 'senderName', 'fileName', 'mimeType',
+            'totalBytes', 'chunkSizeBytes', 'totalChunks', 'uploadedChunkCount',
+            'sha256', 'transferState', 'createdAt', 'updatedAt'
+          ])
+          && request.resource.data.keys().hasAll([
+            'memberUids', 'senderUid', 'senderName', 'fileName', 'mimeType',
+            'totalBytes', 'chunkSizeBytes', 'totalChunks', 'uploadedChunkCount',
+            'sha256', 'transferState', 'createdAt', 'updatedAt'
+          ])
+          && validMembers(request.resource.data.memberUids)
+          && request.auth.uid in request.resource.data.memberUids
+          && request.resource.data.senderUid == request.auth.uid
+          && nonEmptyStr(request.resource.data.senderName, 1, 60)
+          && nonEmptyStr(request.resource.data.fileName, 1, 256)
+          && nonEmptyStr(request.resource.data.mimeType, 1, 128)
+          && request.resource.data.totalBytes is int
+          && request.resource.data.totalBytes >= 0
+          && request.resource.data.totalBytes <= 26214400
+          && request.resource.data.chunkSizeBytes is int
+          && request.resource.data.chunkSizeBytes > 0
+          && request.resource.data.chunkSizeBytes <= 524288
+          && request.resource.data.totalChunks is int
+          && request.resource.data.totalChunks >= 1
+          && request.resource.data.totalChunks <= 200
+          && request.resource.data.uploadedChunkCount is int
+          && request.resource.data.uploadedChunkCount >= 0
+          && request.resource.data.uploadedChunkCount <= request.resource.data.totalChunks
+          && optStr(request.resource.data.sha256, 128)
+          && request.resource.data.transferState in ['UPLOADING', 'PAUSED', 'READY', 'CANCELLED', 'FAILED']
+          && validTimestamp(request.resource.data.createdAt)
+          && validTimestamp(request.resource.data.updatedAt);
+
+        allow update: if isConvMember(convId)
+          && request.resource.data.keys().hasOnly([
+            'memberUids', 'senderUid', 'senderName', 'fileName', 'mimeType',
+            'totalBytes', 'chunkSizeBytes', 'totalChunks', 'uploadedChunkCount',
+            'sha256', 'transferState', 'createdAt', 'updatedAt'
+          ])
+          && request.resource.data.memberUids == resource.data.memberUids
+          && request.resource.data.senderUid == resource.data.senderUid
+          && request.resource.data.totalBytes == resource.data.totalBytes
+          && request.resource.data.chunkSizeBytes == resource.data.chunkSizeBytes
+          && request.resource.data.totalChunks == resource.data.totalChunks
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.uploadedChunkCount is int
+          && request.resource.data.uploadedChunkCount >= 0
+          && request.resource.data.uploadedChunkCount <= resource.data.totalChunks
+          && optStr(request.resource.data.sha256, 128)
+          && request.resource.data.transferState in ['UPLOADING', 'PAUSED', 'READY', 'CANCELLED', 'FAILED']
+          && validTimestamp(request.resource.data.updatedAt);
+
+        allow delete: if isConvMember(convId) && resource.data.senderUid == request.auth.uid;
+
+        match /chunks/{chunkIndex} {
+          allow read: if isConvMember(convId);
+          allow create: if isConvMember(convId)
+            && request.resource.data.keys().hasOnly([
+              'chunkIndex', 'dataBase64', 'byteCount', 'senderUid', 'createdAt'
+            ])
+            && request.resource.data.keys().hasAll([
+              'chunkIndex', 'dataBase64', 'byteCount', 'senderUid', 'createdAt'
+            ])
+            && request.resource.data.senderUid == request.auth.uid
+            && request.resource.data.chunkIndex is int
+            && request.resource.data.chunkIndex >= 0
+            && request.resource.data.chunkIndex < 200
+            && request.resource.data.byteCount is int
+            && request.resource.data.byteCount > 0
+            && request.resource.data.byteCount <= 524288
+            && nonEmptyStr(request.resource.data.dataBase64, 1, 750000)
+            && validTimestamp(request.resource.data.createdAt);
+          allow update: if false;
+          allow delete: if isConvMember(convId) && resource.data.senderUid == request.auth.uid;
+        }
+      }
+    }
+
+    // 4. Online Calls (Top-level for zero-index real-time listener)
+    match /calls/{callId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.memberUids;
+
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          'conversationId', 'memberUids', 'callerUid', 'callerName',
+          'calleeUid', 'videoCall', 'callState', 'sdpOffer', 'sdpAnswer',
+          'startedAtMs', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'conversationId', 'memberUids', 'callerUid', 'callerName',
+          'calleeUid', 'videoCall', 'callState', 'sdpOffer', 'sdpAnswer',
+          'startedAtMs', 'createdAt', 'updatedAt'
+        ])
+        && nonEmptyStr(request.resource.data.conversationId, 1, 200)
+        && validMembers(request.resource.data.memberUids)
+        && request.auth.uid in request.resource.data.memberUids
+        && request.resource.data.callerUid == request.auth.uid
+        && nonEmptyStr(request.resource.data.callerName, 1, 60)
+        && nonEmptyStr(request.resource.data.calleeUid, 1, 128)
+        && request.resource.data.calleeUid in request.resource.data.memberUids
+        && request.resource.data.videoCall is bool
+        && request.resource.data.callState in ['RINGING', 'ACTIVE', 'ENDED', 'REJECTED']
+        && optStr(request.resource.data.sdpOffer, 65000)
+        && optStr(request.resource.data.sdpAnswer, 65000)
+        && request.resource.data.startedAtMs is int
+        && request.resource.data.startedAtMs >= 0
+        && validTimestamp(request.resource.data.createdAt)
+        && validTimestamp(request.resource.data.updatedAt);
+
+      allow update: if isSignedIn()
+        && request.auth.uid in resource.data.memberUids
+        && request.resource.data.keys().hasOnly([
+          'conversationId', 'memberUids', 'callerUid', 'callerName',
+          'calleeUid', 'videoCall', 'callState', 'sdpOffer', 'sdpAnswer',
+          'startedAtMs', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.conversationId == resource.data.conversationId
+        && request.resource.data.memberUids == resource.data.memberUids
+        && request.resource.data.callerUid == resource.data.callerUid
+        && request.resource.data.calleeUid == resource.data.calleeUid
+        && request.resource.data.videoCall == resource.data.videoCall
+        && request.resource.data.startedAtMs == resource.data.startedAtMs
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.callState in ['RINGING', 'ACTIVE', 'ENDED', 'REJECTED']
+        && optStr(request.resource.data.sdpOffer, 65000)
+        && optStr(request.resource.data.sdpAnswer, 65000)
+        && validTimestamp(request.resource.data.updatedAt);
+
+      allow delete: if isSignedIn() && request.auth.uid in resource.data.memberUids;
+
+      match /candidates/{candidateId} {
+        allow read: if isCallMember(callId);
+        allow create: if isCallMember(callId)
+          && request.resource.data.keys().hasOnly([
+            'senderUid', 'sdpMid', 'sdpMLineIndex', 'candidate', 'createdAt'
+          ])
+          && request.resource.data.keys().hasAll([
+            'senderUid', 'sdpMid', 'sdpMLineIndex', 'candidate', 'createdAt'
+          ])
+          && request.resource.data.senderUid == request.auth.uid
+          && optStr(request.resource.data.sdpMid, 64)
+          && request.resource.data.sdpMLineIndex is int
+          && request.resource.data.sdpMLineIndex >= 0
+          && nonEmptyStr(request.resource.data.candidate, 1, 2000)
+          && validTimestamp(request.resource.data.createdAt);
+        allow update: if false;
+        allow delete: if isCallMember(callId);
+      }
+    }
+
+    // Default-deny fallback
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
